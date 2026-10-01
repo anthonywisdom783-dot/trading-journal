@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f4f3ed">
+	<title>Field Notes | Trading Journal</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<style>
+		:root {
+			color-scheme: light;
+			--paper: #f4f3ed;
+			--ink: #17211d;
+			--muted: #727b74;
+			--line: #d9ddd5;
+			--panel: #fffefa;
+			--green: #236b4d;
+			--green-dark: #174631;
+			--acid: #d9ef68;
+			--red: #b34f3c;
+			--mono: "DM Mono", "Cascadia Code", monospace;
+			--sans: "Manrope", "Segoe UI", sans-serif;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			background-color: var(--paper);
+			background-image: linear-gradient(rgba(23, 33, 29, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(23, 33, 29, .025) 1px, transparent 1px);
+			background-size: 28px 28px;
+			color: var(--ink);
+			font-family: var(--sans);
+			font-size: 14px;
+		}
+
+		button,
+		input,
+		select,
+		textarea {
+			font: inherit;
+		}
+
+		button {
+			cursor: pointer;
+		}
+
+		.topbar {
+			min-height: 66px;
+			padding: 0 5vw;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 20px;
+			border-bottom: 1px solid var(--line);
+			background: rgba(244, 243, 237, .94);
+		}
+
+		.brand {
+			display: flex;
+			align-items: center;
+			gap: 11px;
+			font-size: 13px;
+			font-weight: 800;
+			letter-spacing: .04em;
+		}
+
+		.brand-mark {
+			width: 25px;
+			height: 25px;
+			display: grid;
+			place-items: center;
+			background: var(--green);
+			color: white;
+			font: 500 12px var(--mono);
+		}
+
+		.topbar-note {
+			color: var(--muted);
+			font: 11px var(--mono);
+			text-transform: uppercase;
+		}
+
+		main {
+			max-width: 1140px;
+			margin: 0 auto;
+			padding: 45px 28px 76px;
+		}
+
+		.intro {
+			display: flex;
+			align-items: end;
+			justify-content: space-between;
+			gap: 24px;
+			margin-bottom: 30px;
+		}
+
+		.eyebrow {
+			color: var(--green);
+			font: 11px var(--mono);
+			letter-spacing: .1em;
+			text-transform: uppercase;
+		}
+
+		h1 {
+			margin: 8px 0 0;
+			font-size: clamp(30px, 4vw, 42px);
+			line-height: 1.08;
+			letter-spacing: -.04em;
+		}
+
+		.intro p {
+			max-width: 390px;
+			margin: 0;
+			color: var(--muted);
+			line-height: 1.65;
+		}
+
+		.workspace {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 286px;
+			gap: 22px;
+			align-items: start;
+		}
+
+		.form-panel,
+		.side-panel {
+			border: 1px solid var(--line);
+			background: var(--panel);
+		}
+
+		.form-panel {
+			padding: 0 30px;
+		}
+
+		.section {
+			padding: 25px 0 27px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.section:last-of-type {
+			border-bottom: 0;
+		}
+
+		.section-heading {
+			display: flex;
+			align-items: baseline;
+			gap: 12px;
+			margin-bottom: 18px;
+		}
+
+		.section-number {
+			color: var(--green);
+			font: 11px var(--mono);
+		}
+
+		h2 {
+			margin: 0;
+			font-size: 15px;
+			font-weight: 800;
+			letter-spacing: -.015em;
+		}
+
+		.section-hint {
+			margin-left: auto;
+			color: var(--muted);
+			font-size: 11px;
+		}
+
+		.fields {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 16px 18px;
+		}
+
+		.fields.three {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		.field {
+			min-width: 0;
+		}
+
+		.field.full {
+			grid-column: 1 / -1;
+		}
+
+		label,
+		.label {
+			display: block;
+			margin-bottom: 7px;
+			color: #45514a;
+			font-size: 11px;
+			font-weight: 700;
+		}
+
+		input[type="text"],
+		input[type="datetime-local"],
+		input[type="number"],
+		select,
+		textarea {
+			width: 100%;
+			min-height: 40px;
+			padding: 9px 11px;
+			border: 1px solid #cfd5cc;
+			border-radius: 2px;
+			outline: none;
+			background: #fff;
+			color: var(--ink);
+		}
+
+		textarea {
+			min-height: 76px;
+			resize: vertical;
+			line-height: 1.5;
+		}
+
+		input:focus,
+		select:focus,
+		textarea:focus {
+			border-color: var(--green);
+			box-shadow: 0 0 0 2px rgba(35, 107, 77, .12);
+		}
+
+		.choice-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+
+		.choice {
+			position: relative;
+			display: inline-flex;
+			align-items: center;
+			gap: 7px;
+			min-height: 34px;
+			padding: 7px 10px;
+			border: 1px solid var(--line);
+			background: #fff;
+			color: #45514a;
+			font-size: 11px;
+		}
+
+		.choice:has(input:checked) {
+			border-color: var(--green);
+			background: #edf5ee;
+			color: var(--green-dark);
+		}
+
+		.choice input {
+			accent-color: var(--green);
+			margin: 0;
+		}
+
+		.model-grid {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 14px;
+		}
+
+		.model {
+			padding: 12px;
+			border: 1px solid var(--line);
+			background: #fbfbf7;
+		}
+
+		.model .choice {
+			padding: 0;
+			min-height: auto;
+			border: 0;
+			background: transparent;
+			font-size: 12px;
+		}
+
+		.model textarea {
+			min-height: 58px;
+			margin-top: 10px;
+			background: white;
+		}
+
+		.stack {
+			display: grid;
+			gap: 14px;
+		}
+
+		.checkline {
+			display: flex;
+			align-items: flex-start;
+			gap: 9px;
+			color: #45514a;
+			line-height: 1.5;
+		}
+
+		.checkline input {
+			margin: 3px 0 0;
+			accent-color: var(--green);
+		}
+
+		.actions {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+			padding: 20px 0 23px;
+		}
+
+		.actions-note {
+			color: var(--muted);
+			font-size: 11px;
+		}
+
+		.button-group {
+			display: flex;
+			gap: 8px;
+		}
+
+		.button {
+			min-height: 40px;
+			padding: 0 15px;
+			border: 1px solid var(--green);
+			background: var(--green);
+			color: white;
+			font-size: 12px;
+			font-weight: 800;
+		}
+
+		.button:hover {
+			background: var(--green-dark);
+		}
+
+		.button.secondary {
+			background: transparent;
+			color: var(--green-dark);
+		}
+
+		.button.secondary:hover {
+			background: #edf5ee;
+		}
+
+		.side-panel {
+			position: sticky;
+			top: 18px;
+		}
+
+		.side-head {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 17px 17px 14px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.side-head h2 {
+			font-size: 13px;
+		}
+
+		.count {
+			color: var(--muted);
+			font: 11px var(--mono);
+		}
+
+		.entry-list {
+			max-height: 360px;
+			overflow: auto;
+		}
+
+		.empty-state {
+			padding: 20px 17px;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.6;
+		}
+
+		.entry-item {
+			width: 100%;
+			padding: 14px 17px;
+			border: 0;
+			border-bottom: 1px solid var(--line);
+			background: transparent;
+			text-align: left;
+		}
+
+		.entry-item:hover {
+			background: #f6f8f2;
+		}
+
+		.entry-top {
+			display: flex;
+			justify-content: space-between;
+			gap: 10px;
+			font-size: 12px;
+			font-weight: 800;
+		}
+
+		.entry-date {
+			margin-top: 5px;
+			color: var(--muted);
+			font: 10px var(--mono);
+		}
+
+		.result {
+			font: 10px var(--mono);
+			text-transform: uppercase;
+		}
+
+		.result.win {
+			color: var(--green);
+		}
+
+		.result.loss {
+			color: var(--red);
+		}
+
+		.result.breakeven {
+			color: #96732a;
+		}
+
+		.reflection {
+			margin-top: 18px;
+			padding: 19px 18px;
+			background: var(--green-dark);
+			color: white;
+		}
+
+		.reflection h2 {
+			color: var(--acid);
+		}
+
+		.reflection .section-number {
+			color: var(--acid);
+		}
+
+		.prompt {
+			margin-top: 16px;
+			padding-top: 13px;
+			border-top: 1px solid rgba(255, 255, 255, .2);
+		}
+
+		.prompt label {
+			margin-bottom: 8px;
+			color: #e4ebdf;
+			font-size: 11px;
+			line-height: 1.5;
+		}
+
+		.reflection textarea {
+			min-height: 62px;
+			border-color: rgba(255, 255, 255, .32);
+			background: rgba(255, 255, 255, .08);
+			color: white;
+		}
+
+		.reflection textarea::placeholder {
+			color: #bdc9bd;
+		}
+
+		.reflection-save {
+			width: 100%;
+			margin-top: 14px;
+			border-color: var(--acid);
+			background: var(--acid);
+			color: var(--green-dark);
+		}
+
+		.reflection-save:hover {
+			background: #e5f79a;
+		}
+
+		.toast {
+			position: fixed;
+			right: 22px;
+			bottom: 22px;
+			padding: 12px 16px;
+			background: var(--green-dark);
+			color: white;
+			font-size: 12px;
+			opacity: 0;
+			transform: translateY(8px);
+			transition: .2s ease;
+			pointer-events: none;
+		}
+
+		.toast.show {
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		@media (max-width: 850px) {
+			.workspace {
+				grid-template-columns: minmax(0, 1fr);
+			}
+
+			.side-panel {
+				position: static;
+			}
+
+			.entry-list {
+				max-height: 250px;
+			}
+		}
+
+		@media (max-width: 580px) {
+			main {
+				padding: 30px 15px 48px;
+			}
+
+			.topbar {
+				padding: 0 15px;
+			}
+
+			.topbar-note {
+				display: none;
+			}
+
+			.intro {
+				display: block;
+			}
+
+			.intro p {
+				margin-top: 13px;
+			}
+
+			.form-panel {
+				padding: 0 16px;
+			}
+
+			.fields,
+			.fields.three,
+			.model-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.section-hint {
+				display: none;
+			}
+
+			.actions {
+				align-items: flex-start;
+				flex-direction: column;
+			}
+
+			.button-group {
+				width: 100%;
+			}
+
+			.button-group .button {
+				flex: 1;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<header class="topbar">
+		<div class="brand"><span class="brand-mark">FN</span> FIELD NOTES <span class="topbar-note">/ TRADING
+				JOURNAL</span></div>
+		<div class="topbar-note" id="today-label"></div>
+	</header>
+
+	<main>
+		<div class="intro">
+			<div>
+				<div class="eyebrow">Process over outcome</div>
+				<h1>My Trading Journal</h1>
+			</div>
+			<p>Capture the context, execute your model, and review the decisions that move your trading forward.</p>
+		</div>
+
+		<div class="workspace">
+			<form class="form-panel" id="trade-form">
+				<section class="section">
+					<div class="section-heading"><span class="section-number">01</span>
+						<h2>Pre-trade setup &amp; context</h2>
+					</div>
+					<div class="fields">
+						<div class="field"><label for="trade-date">Date &amp; time</label><input id="trade-date"
+								name="tradeDate" type="datetime-local" required></div>
+						<div class="field"><label for="asset">Asset / instrument</label><input id="asset" name="asset"
+								type="text" placeholder="EURUSD, BTCUSD, NAS100" required></div>
+						<div class="field full"><span class="label">Session traded</span>
+							<div class="choice-row">
+								<label class="choice"><input type="checkbox" name="sessions" value="Asian">Asian</label>
+								<label class="choice"><input type="checkbox" name="sessions"
+										value="London">London</label>
+								<label class="choice"><input type="checkbox" name="sessions" value="New York">New
+									York</label>
+								<label class="choice"><input type="checkbox" name="sessions" value="All sessions">All
+									sessions</label>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="section">
+					<div class="section-heading"><span class="section-number">02</span>
+						<h2>Strategy &amp; bias</h2><span class="section-hint">Select all that apply</span>
+					</div>
+					<div class="model-grid">
+						<div class="model"><label class="choice"><input type="checkbox" name="bias" value="CR">CR ·
+								Candle Rejection</label><textarea name="bias_CR"
+								placeholder="Rejection wick and level"></textarea></div>
+						<div class="model"><label class="choice"><input type="checkbox" name="bias" value="SR">SR ·
+								Shadow Rejection</label><textarea name="bias_SR"
+								placeholder="Shadow / wick context"></textarea></div>
+						<div class="model"><label class="choice"><input type="checkbox" name="bias" value="RB">RB ·
+								Recent Breakout</label><textarea name="bias_RB"
+								placeholder="Level that was broken"></textarea></div>
+						<div class="model"><label class="choice"><input type="checkbox" name="bias" value="CRT">CRT ·
+								Candle Range Theory</label><textarea name="bias_CRT"
+								placeholder="Range context"></textarea></div>
+					</div>
+				</section>
+
+				<section class="section">
+					<div class="section-heading"><span class="section-number">03</span>
+						<h2>Execution &amp; entry model</h2>
+					</div>
+					<div class="fields">
+						<div class="field full"><span class="label">Entry trigger used</span>
+							<div class="choice-row">
+								<label class="choice"><input type="radio" name="entryType" value="Type 1">Type 1</label>
+								<label class="choice"><input type="radio" name="entryType" value="Type 2">Type 2</label>
+								<label class="choice"><input type="radio" name="entryType" value="Type 3">Type 3</label>
+							</div>
+						</div>
+						<div class="field full"><label for="entry-criteria">Entry criteria / trigger
+								detail</label><textarea id="entry-criteria" name="entryCriteria"
+								placeholder="For example: market entry on candle close, limit at retracement, stop on structural break"></textarea>
+						</div>
+						<div class="field full"><span class="label">Confirmation (optional)</span>
+							<div class="choice-row">
+								<label class="choice"><input type="checkbox" name="confirmations" value="Model 1">Model
+									1</label>
+								<label class="choice"><input type="checkbox" name="confirmations" value="Model 2">Model
+									2</label>
+								<label class="choice"><input type="checkbox" name="confirmations" value="Model 3">Model
+									3</label>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="section">
+					<div class="section-heading"><span class="section-number">04</span>
+						<h2>Risk management &amp; metrics</h2>
+					</div>
+					<div class="fields three">
+						<div class="field"><label for="entry-price">Entry price</label><input id="entry-price"
+								name="entryPrice" type="number" step="any" placeholder="0.00"></div>
+						<div class="field"><label for="stop-loss">Stop loss</label><input id="stop-loss" name="stopLoss"
+								type="number" step="any" placeholder="0.00"></div>
+						<div class="field"><label for="take-profit">Take profit</label><input id="take-profit"
+								name="takeProfit" type="number" step="any" placeholder="0.00"></div>
+						<div class="field"><label for="risk-reward">Risk-to-reward (1 : )</label><input id="risk-reward"
+								name="riskReward" type="number" min="0" step="any" placeholder="2"></div>
+						<div class="field"><label for="position-size">Position / lot size</label><input
+								id="position-size" name="positionSize" type="text" placeholder="0.10 lots"></div>
+						<div class="field"><label for="risk-percent">Account risk (%)</label><input id="risk-percent"
+								name="riskPercent" type="number" min="0" step="any" placeholder="1.0"></div>
+					</div>
+				</section>
+
+				<section class="section">
+					<div class="section-heading"><span class="section-number">05</span>
+						<h2>Mindset &amp; emotional state</h2>
+					</div>
+					<div class="fields">
+						<div class="field"><label for="pre-emotions">Pre-trade emotions</label><input id="pre-emotions"
+								name="preEmotions" type="text" placeholder="Calm, confident, anxious, FOMO..."></div>
+						<div class="field"><label for="during-emotions">During-trade state</label><textarea
+								id="during-emotions" name="duringEmotions"
+								placeholder="Any interference, stop movement, or early close?"></textarea></div>
+						<div class="field full"><label class="checkline"><input type="checkbox" name="discipline"
+									value="yes">I followed my defined bias and entry type without deviation.</label>
+						</div>
+					</div>
+				</section>
+
+				<section class="section">
+					<div class="section-heading"><span class="section-number">06</span>
+						<h2>Post-trade review &amp; outcome</h2>
+					</div>
+					<div class="fields">
+						<div class="field"><label for="result">Trade result</label><select id="result" name="result">
+								<option value="">Choose outcome</option>
+								<option>Win</option>
+								<option>Loss</option>
+								<option>Breakeven</option>
+							</select></div>
+						<div class="field"><label for="pnl">Actual P/L ($ or %)</label><input id="pnl" name="pnl"
+								type="text" placeholder="+125.00 or +1.2%"></div>
+						<div class="field full"><label for="went-well">What went right according to
+								plan?</label><textarea id="went-well" name="wentWell"></textarea></div>
+						<div class="field full"><label for="mistakes">Mistakes or deviations</label><textarea
+								id="mistakes" name="mistakes"></textarea></div>
+						<div class="field full"><label for="takeaway">Key takeaway for future sessions</label><textarea
+								id="takeaway" name="takeaway"></textarea></div>
+					</div>
+				</section>
+
+				<div class="actions">
+					<span class="actions-note">Entries are saved in this browser on this device.</span>
+					<div class="button-group"><button class="button secondary" type="reset">Clear form</button><button
+							class="button" type="submit">Save trade</button></div>
+				</div>
+			</form>
+
+			<aside>
+				<section class="side-panel" aria-labelledby="saved-heading">
+					<div class="side-head">
+						<h2 id="saved-heading">Saved trades</h2><span class="count" id="trade-count">0 ENTRIES</span>
+					</div>
+					<div class="entry-list" id="entry-list">
+						<div class="empty-state">Your saved trades will appear here. Select an entry to review it.</div>
+					</div>
+				</section>
+				<section class="reflection" aria-labelledby="reflection-heading">
+					<div class="section-heading"><span class="section-number">EOD</span>
+						<h2 id="reflection-heading">Daily reflection</h2>
+					</div>
+					<div class="prompt"><label for="best-model">Which bias model performed best across today's
+							sessions?</label><textarea id="best-model" placeholder="CR, SR, RB, CRT..."></textarea>
+					</div>
+					<div class="prompt"><label for="forced-trades">Did you force trades outside your entry
+							types?</label><textarea id="forced-trades" placeholder="What happened?"></textarea></div>
+					<div class="prompt"><label for="volatility">How did your mindset affect execution in high
+							volatility?</label><textarea id="volatility"
+							placeholder="Note the moment and your response"></textarea></div>
+					<button class="button reflection-save" id="save-reflection" type="button">Save daily
+						reflection</button>
+				</section>
+			</aside>
+		</div>
+	</main>
+	<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+	<script>
+		const tradeStorageKey = "field-notes-trades-v1";
+		const reflectionStorageKey = "field-notes-reflections-v1";
+		const form = document.getElementById("trade-form");
+		const entryList = document.getElementById("entry-list");
+		const toast = document.getElementById("toast");
+
+		function readStorage(key, fallback) {
+			try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+			catch { return fallback; }
+		}
+
+		function formDataToObject(formData) {
+			const trade = {};
+			for (const [key, value] of formData.entries()) {
+				if (key === "sessions" || key === "bias" || key === "confirmations") {
+					trade[key] = trade[key] || [];
+					trade[key].push(value);
+				} else {
+					trade[key] = value;
+				}
+			}
+			return trade;
+		}
+
+		function formatDate(value) {
+			if (!value) return "Date not set";
+			const date = new Date(value);
+			return Number.isNaN(date.getTime()) ? value : date.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+		}
+
+		function localDateKey(date) {
+			return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+		}
+
+		function renderTrades() {
+			const trades = readStorage(tradeStorageKey, []);
+			document.getElementById("trade-count").textContent = `${trades.length} ${trades.length === 1 ? "ENTRY" : "ENTRIES"}`;
+			entryList.replaceChildren();
+			if (!trades.length) {
+				const empty = document.createElement("div");
+				empty.className = "empty-state";
+				empty.textContent = "Your saved trades will appear here. Select an entry to review it.";
+				entryList.append(empty);
+				return;
+			}
+			for (const trade of trades) {
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = "entry-item";
+				const top = document.createElement("div");
+				top.className = "entry-top";
+				const asset = document.createElement("span");
+				asset.textContent = trade.asset || "Untitled trade";
+				const result = document.createElement("span");
+				result.className = `result ${(trade.result || "").toLowerCase()}`;
+				result.textContent = trade.result || "Open";
+				const date = document.createElement("div");
+				date.className = "entry-date";
+				date.textContent = formatDate(trade.tradeDate);
+				top.append(asset, result);
+				button.append(top, date);
+				button.addEventListener("click", () => loadTrade(trade));
+				entryList.append(button);
+			}
+		}
+
+		function loadTrade(trade) {
+			form.reset();
+			for (const [key, value] of Object.entries(trade)) {
+				if (["id", "sessions", "bias", "confirmations"].includes(key)) continue;
+				const control = form.elements.namedItem(key);
+				if (!control) continue;
+				if (control instanceof RadioNodeList) {
+					for (const item of control) item.checked = item.value === value;
+				} else if (control.type === "checkbox") {
+					control.checked = Boolean(value);
+				} else {
+					control.value = value;
+				}
+			}
+			for (const key of ["sessions", "bias", "confirmations"]) {
+				for (const item of form.querySelectorAll(`[name="${key}"]`)) item.checked = (trade[key] || []).includes(item.value);
+			}
+			window.scrollTo({ top: 0, behavior: "smooth" });
+			showToast("Entry loaded. Save to add it as a new trade.");
+		}
+
+		let toastTimer;
+		function showToast(message) {
+			toast.textContent = message;
+			toast.classList.add("show");
+			clearTimeout(toastTimer);
+			toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+		}
+
+		form.addEventListener("submit", event => {
+			event.preventDefault();
+			const trade = formDataToObject(new FormData(form));
+			trade.id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
+			const trades = readStorage(tradeStorageKey, []);
+			trades.unshift(trade);
+			localStorage.setItem(tradeStorageKey, JSON.stringify(trades));
+			renderTrades();
+			form.reset();
+			showToast("Trade saved to this browser.");
+		});
+
+		document.getElementById("save-reflection").addEventListener("click", () => {
+			const reflection = {
+				date: localDateKey(new Date()),
+				bestModel: document.getElementById("best-model").value,
+				forcedTrades: document.getElementById("forced-trades").value,
+				volatility: document.getElementById("volatility").value
+			};
+			const reflections = readStorage(reflectionStorageKey, []);
+			const existingIndex = reflections.findIndex(item => item.date === reflection.date);
+			if (existingIndex >= 0) reflections[existingIndex] = reflection;
+			else reflections.unshift(reflection);
+			localStorage.setItem(reflectionStorageKey, JSON.stringify(reflections));
+			showToast("Daily reflection saved.");
+		});
+
+		const now = new Date();
+		const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+		document.getElementById("trade-date").value = localDateTime;
+		document.getElementById("today-label").textContent = now.toLocaleDateString(undefined, { weekday: "short", day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
+		const todaysReflection = readStorage(reflectionStorageKey, []).find(item => item.date === localDateKey(now));
+		if (todaysReflection) {
+			document.getElementById("best-model").value = todaysReflection.bestModel || "";
+			document.getElementById("forced-trades").value = todaysReflection.forcedTrades || "";
+			document.getElementById("volatility").value = todaysReflection.volatility || "";
+		}
+		renderTrades();
+	</script>
+</body>
+
+</html>
